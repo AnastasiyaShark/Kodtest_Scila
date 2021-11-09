@@ -1,7 +1,8 @@
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * Klassen som ska implementeras:
@@ -27,7 +28,7 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     public TimeBoundList(long timeSpanMs, int maxSize) {
         this.timeSpanMs = timeSpanMs;
         this.maxSize = maxSize;
-        this.internalList= new ArrayList<>(maxSize);
+        this.internalList = new ArrayList<>(maxSize);
     }
 
     /**
@@ -37,17 +38,22 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
      * @return the elements purged by this call
      */
     public List<T> add(T element) {
-        List <T> purgedElements = new ArrayList<>();
-        if (internalList.size()>=maxSize){//?
-
+        List<T> purgedElements = new ArrayList<>();
+        if (internalList.size() >= maxSize) {
+            T oldestElement = internalList.stream().sorted((e1, e2) -> (e1.getTimestamp().compareTo(e2.getTimestamp())))
+                    .collect(Collectors.toList()).get(0);
+            purgedElements.add(oldestElement);
+            internalList.remove(oldestElement);
         }
         internalList.add(element);
-        for (T el: internalList){
-            if (el.getTimestamp().toEpochMilli() > timeSpanMs) {
+
+        for (T el : internalList) {
+            if ((Instant.now().toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
                 purgedElements.add(el);
-                internalList.remove(el);
             }
+
         }
+        internalList.removeAll(purgedElements);
 
         return purgedElements;
     }
@@ -56,28 +62,6 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     @Override
     public Iterator<T> iterator() {
 
-        return new Iterator<>() {
-
-
-            @Override
-            public boolean hasNext() {
-                return (current < maxSize);
-            }
-
-            @Override
-            public T next() {
-                if (!hasNext()){
-                    throw new NoSuchElementException();
-                }
-                current++;
-                return arrayList[currentIndex++];
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-
+        return internalList.iterator();
     }
 }
