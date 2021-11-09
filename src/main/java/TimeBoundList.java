@@ -1,4 +1,5 @@
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,11 +47,20 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
             internalList.remove(oldestElement);
         }
         internalList.add(element);
-
+        Instant now = Instant.now();
         for (T el : internalList) {
-            if ((Instant.now().toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
+            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) > timeSpanMs){
+                System.out.println(ChronoUnit.MILLIS.between(now,el.getTimestamp()));
                 purgedElements.add(el);
             }
+//            if ((now.toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
+//                System.out.println((now.toEpochMilli() - el.getTimestamp().toEpochMilli()));
+//                purgedElements.add(el);
+//            }
+
+//            if ((Instant.now().toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
+//                purgedElements.add(el);
+//            }
 
         }
         internalList.removeAll(purgedElements);
