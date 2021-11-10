@@ -39,34 +39,15 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     public List<T> add(T element) {
 
         List<T> purgedElements = new ArrayList<>();
-        if (internalList.size() >= maxSize ) {
-            T oldestElement = internalList.stream().sorted((e1, e2) -> (e1.getTimestamp().compareTo(e2.getTimestamp())))
-                    .collect(Collectors.toList()).get(0);
-            purgedElements.add(oldestElement);
-//            internalList.remove(oldestElement);
-        }
-//        internalList.add(element);
-//        Instant now = Instant.now();
         for (T el : internalList) {
-//            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) > timeSpanMs){
-//                purgedElements.add(el);
-//            }
-//            if ((now.toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
-//                System.out.println((now.toEpochMilli() - el.getTimestamp().toEpochMilli()));
-//                purgedElements.add(el);
-//            }
-
-//            if ((Instant.now().toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
-//                purgedElements.add(el);
-//            }
-
-
-            if (el.getTimestamp().toEpochMilli() > timeSpanMs) {
-                purgedElements.add(el);
+            if (internalList.size() >= maxSize || el.getTimestamp().toEpochMilli() > timeSpanMs) {
+                T oldestElement = internalList.stream().sorted((e1, e2) -> (e1.getTimestamp().compareTo(e2.getTimestamp())))
+                        .collect(Collectors.toList()).get(0);
+                purgedElements.add(oldestElement);
+               break;
             }
 
         }
-        System.out.println(purgedElements);
         internalList.removeAll(purgedElements);
         internalList.add(element);
         return purgedElements;
@@ -75,7 +56,6 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
 
     @Override
     public Iterator<T> iterator() {
-
         return internalList.iterator();
     }
 }
