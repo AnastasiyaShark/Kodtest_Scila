@@ -11,4 +11,11 @@ public class Event implements HasTimestamp {
     public Instant getTimestamp() {
         return timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "timestamp=" + timestamp +
+                '}';
+    }
 }

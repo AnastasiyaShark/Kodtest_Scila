@@ -1,5 +1,3 @@
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     private final long timeSpanMs;
-    private final int maxSize;
+    private int maxSize;
     private final List<T> internalList;
 
 
@@ -39,19 +37,20 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
      * @return the elements purged by this call
      */
     public List<T> add(T element) {
+
         List<T> purgedElements = new ArrayList<>();
-        if (internalList.size() >= maxSize) {
+        if (internalList.size() >= maxSize ) {
             T oldestElement = internalList.stream().sorted((e1, e2) -> (e1.getTimestamp().compareTo(e2.getTimestamp())))
                     .collect(Collectors.toList()).get(0);
             purgedElements.add(oldestElement);
-            internalList.remove(oldestElement);
+//            internalList.remove(oldestElement);
         }
-        internalList.add(element);
-        Instant now = Instant.now();
+//        internalList.add(element);
+//        Instant now = Instant.now();
         for (T el : internalList) {
-            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) >= timeSpanMs){
-                purgedElements.add(el);
-            }
+//            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) > timeSpanMs){
+//                purgedElements.add(el);
+//            }
 //            if ((now.toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
 //                System.out.println((now.toEpochMilli() - el.getTimestamp().toEpochMilli()));
 //                purgedElements.add(el);
@@ -61,9 +60,15 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
 //                purgedElements.add(el);
 //            }
 
-        }
-        internalList.removeAll(purgedElements);
 
+            if (el.getTimestamp().toEpochMilli() > timeSpanMs) {
+                purgedElements.add(el);
+            }
+
+        }
+        System.out.println(purgedElements);
+        internalList.removeAll(purgedElements);
+        internalList.add(element);
         return purgedElements;
     }
 
