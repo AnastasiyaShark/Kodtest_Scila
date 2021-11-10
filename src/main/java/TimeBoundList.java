@@ -43,7 +43,7 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
             addOldestElement(purgedElements);
         } else {
             for (T el : internalList) {
-                if (el.getTimestamp().toEpochMilli() > timeSpanMs) {
+                if (el.getTimestamp().toEpochMilli() >= timeSpanMs) {
                     addOldestElement(purgedElements);
                     break;
                 }
