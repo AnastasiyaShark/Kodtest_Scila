@@ -49,8 +49,7 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
         internalList.add(element);
         Instant now = Instant.now();
         for (T el : internalList) {
-            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) > timeSpanMs){
-                System.out.println(ChronoUnit.MILLIS.between(now,el.getTimestamp()));
+            if (ChronoUnit.MILLIS.between(now,el.getTimestamp() ) >= timeSpanMs){
                 purgedElements.add(el);
             }
 //            if ((now.toEpochMilli() - el.getTimestamp().toEpochMilli()) > timeSpanMs) {
