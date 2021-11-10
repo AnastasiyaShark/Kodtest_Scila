@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     private final long timeSpanMs;
-    private int maxSize;
+    private final int maxSize;
     private final List<T> internalList;
 
 
@@ -37,20 +38,26 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
      * @return the elements purged by this call
      */
     public List<T> add(T element) {
-
         List<T> purgedElements = new ArrayList<>();
-        for (T el : internalList) {
-            if (internalList.size() >= maxSize || el.getTimestamp().toEpochMilli() > timeSpanMs) {
-                T oldestElement = internalList.stream().sorted((e1, e2) -> (e1.getTimestamp().compareTo(e2.getTimestamp())))
-                        .collect(Collectors.toList()).get(0);
-                purgedElements.add(oldestElement);
-               break;
+        if (internalList.size() >= maxSize) {
+            addOldestElement(purgedElements);
+        } else {
+            for (T el : internalList) {
+                if (el.getTimestamp().toEpochMilli() > timeSpanMs) {
+                    addOldestElement(purgedElements);
+                    break;
+                }
             }
-
         }
         internalList.removeAll(purgedElements);
         internalList.add(element);
         return purgedElements;
+    }
+
+    public void addOldestElement(List<T> purgedElements) {
+        T oldestElement = internalList.stream().sorted(Comparator.comparing(HasTimestamp::getTimestamp))
+                .collect(Collectors.toList()).get(0);
+        purgedElements.add(oldestElement);
     }
 
 
@@ -58,4 +65,6 @@ public class TimeBoundList<T extends HasTimestamp> implements Iterable<T> {
     public Iterator<T> iterator() {
         return internalList.iterator();
     }
+
+
 }

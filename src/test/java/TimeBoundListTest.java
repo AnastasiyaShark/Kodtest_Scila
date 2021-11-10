@@ -27,7 +27,7 @@ public class TimeBoundListTest {
                 .mapToObj(Event::new)
                 .collect(Collectors.toList());
         eventList.forEach(timeBoundList::add);
-        AtomicInteger count = new AtomicInteger(5);
+        AtomicInteger count = new AtomicInteger(4);
         timeBoundList.forEach(e -> assertEquals(eventList.get(count.getAndIncrement()), e));
     }
 
@@ -50,7 +50,6 @@ public class TimeBoundListTest {
                 .collect(Collectors.toList());
         List<Event> purgedList = new ArrayList<>();
         eventList.forEach(e -> purgedList.addAll(timeBoundList.add(e)));
-        AtomicInteger count = new AtomicInteger(5);
         assertEquals(purgedList, eventList.subList(0, 5));
     }
 
